@@ -1,0 +1,50 @@
+
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="admin-container">
+    <div class="card-admin">
+        <div class="card-header">
+            <h2 class="card-title">messages</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                         <th>Name</th>
+                         <th> Number</th>
+                         <th>Course</th>
+                         <th>message</th>
+                         <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for message in message%}
+                         <tr>
+                          <td>{{message.name }}</td>
+                          <td>{{message.number }}</td>
+                          <td>{{message.course }}</td>
+                          <td>{{message.message}}</td>
+                          <td>
+                            <a href="{{ url_for('message.delete_message', message_id=message.id)}}" class="btn btn-danger btn-sm">
+                                <i class="fa-solid fa-trash"></i>
+                                 delete
+                            </a>
+                    
+                            </td>
+                         </tr> 
+                        {%endfor%}   
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{%endblock%}
+

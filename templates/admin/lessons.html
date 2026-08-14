@@ -1,0 +1,32 @@
+{% extends "base.html"%}
+
+{%block body%}
+
+<div class="admin-container">
+    <div class="card-admin">
+        <div class="card-header">
+            <h2 class="card-title">{{recorded.title}} lessons</h2>
+            <a href="{{ url_for('recorded.add_lesson', id=recorded.id)}}" class="btn-admin outline-btn">
+                <i class="fa-solid fa-plus"></i>
+                Add lesson
+            </a>
+        </div>
+        <div class="course-grid">
+     {% for lesson in lesson%}
+            <div class="course-card">
+           <div class="course-card-header">
+              <i class="fa-solid fa-book"></i>
+              <h3>{{recorded.title}}</h3>
+           </div>
+          
+           <h3>{{lesson.lesson_order}} - {{lesson.title}}</h3>
+           <p>{{lesson.video_links}}</p>
+
+            <a href="{{ url_for('recorded.edit_lesson', id=lesson.id)}}" class="btn-admin btn-outline">edit</a>
+            <a href="{{ url_for('recorded.delete_lesson', id=lesson.id)}}" class="btn-admin btn-outline">delete</a>
+
+       </div>
+     {%endfor%}
+  </div>
+</div>
+{%endblock%}
