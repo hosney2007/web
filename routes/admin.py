@@ -3,6 +3,12 @@ from flask import Blueprint, render_template, request, redirect, url_for,current
 from flask_login import  current_user, login_required
 from extinsion import db
 from models.course import Course
+from models.booking import Booking
+from models.purchase import Purchase
+from models.recorded import Recorded
+from models.user import User
+from  models.message import Message
+from datetime import datetime
 from models.branch import Branch
 from models.schedaule import Schedule
 from models.success_story import SuccessStory
@@ -17,8 +23,88 @@ admin = Blueprint("admin" ,__name__)
 @login_required
 @admin_required
 def admin_dashboard():
-    courses = Course.query.filter_by( is_active=True).all()
-    return render_template("admin/admin-dashboard.html" ,user=current_user, course=courses, name="Admin")
+    courses = Course.query.filter_by(is_active=True).all()
+
+    total_courses = len(courses)
+
+    active_students = User.query.filter_by(
+        role="student",
+        is_verified=True
+    ).count()
+
+    pending_bookings = Booking.query.filter_by(
+        status="pending"
+    ).count()
+
+    pending_orders = Purchase.query.filter(
+        Purchase.status.in_(["pending", "waiting"])
+    ).count()
+
+    approved_orders = Purchase.query.filter_by(
+        status="approved"
+    ).all()
+
+    monthly_revenue = sum(
+        float(order.recorded.price or 0)
+        for order in approved_orders
+        if order.recorded
+    )
+
+    today_name = datetime.now().strftime("%A")
+
+    today_schedules = [
+        schedule
+        for schedule in Schedule.query.all()
+        if today_name.lower() in {
+            (schedule.day1 or "").strip().lower(),
+            (schedule.day2 or "").strip().lower()
+        }
+    ]
+
+    today_schedule_ids = {
+        schedule.id
+        for schedule in today_schedules
+    }
+
+    today_bookings = (
+        Booking.query.filter(
+            Booking.schedule_id.in_(today_schedule_ids)
+        ).count()
+        if today_schedule_ids
+        else 0
+    )
+
+    total_messages = Message.query.count()
+
+    recent_bookings = Booking.query.order_by(
+        Booking.id.desc()
+    ).limit(4).all()
+
+    recent_orders = Purchase.query.order_by(
+        Purchase.id.desc()
+    ).limit(4).all()
+
+    recent_messages = Message.query.order_by(
+        Message.id.desc()
+    ).limit(4).all()
+
+    return render_template(
+        "admin/admin-dashboard.html",
+        user=current_user,
+        course=courses,
+        name="Admin",
+        total_courses=total_courses,
+        active_students=active_students,
+        pending_bookings=pending_bookings,
+        pending_orders=pending_orders,
+        monthly_revenue=monthly_revenue,
+        today_bookings=today_bookings,
+        today_schedules=today_schedules,
+        total_messages=total_messages,
+        recent_bookings=recent_bookings,
+        recent_orders=recent_orders,
+        recent_messages=recent_messages
+    )
 
 #==============addd courses==================////
 
