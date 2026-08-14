@@ -567,7 +567,7 @@ hr{
 }
 
 .st-card{
-    background: linear-gradient(180deg, #D4AF37,#eac240);
+    background: linear-gradient(180deg, #c79a5a,#c8a165);
     text-align: center;
     padding: 40px 20px;
     border-radius: var(--radius);
@@ -589,7 +589,7 @@ hr{
 
 /*========================================CTA==============================*/
 .cta{
-    background: linear-gradient(135deg, #061123, #D4AF37);
+    background: linear-gradient(135deg, #c79a5a, #c8a165);
     text-align: center;
     color: var(--white);
     border-radius: 30px;
@@ -1700,7 +1700,7 @@ hr{
 
 .mobile-item.active{
     width:120px;
-    background:#d4af37;
+    background:var(--secondary-color);
     color:#08152b;
 }
 
@@ -2133,18 +2133,18 @@ body{
 }
 
 .hero-buttons .btn:first-child{
-    background: #d4af37;
+    background: var(--secondary-color);
     color: #08152f;
 }
 
 .hero-buttons .btn:last-child{
     background: transparent;
     color: #fff;
-    border: 2px solid #d4af37;
+    border: 2px solid var(--secondary-color);
 }
 
 .hero-buttons .btn:last-child:hover{
-    background: #d4af37;
+    background: var(--secondary-color);
     color: #08152f;
 }
 
