@@ -96,7 +96,7 @@
 
                     <div class="success-card">
 
-                        <img src="{{ url_for('static', filename='uploads/' ~ story.image) }}"
+                        <img src="{{story.image)}}"
                              alt="{{ story.student_name }}">
 
                         <h3>{{ story.student_name }}</h3>
@@ -213,7 +213,7 @@
             Get access to a FREE session and discover how we can help you achieve your goals.
         </p>
         <div class="btn" data-aos="zoom-in" data-aos-delay="300">
-          <a href="/free session" class="btn btn-admin" >
+          <a href="/free session" class="btn btn-outline" >
               Free Session
           </a>
         </div>
