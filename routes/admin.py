@@ -22,7 +22,7 @@ supabase = create_client(
     os.getenv("SUPABASE_URL"),
     os.getenv("SUPABASE_KEY")
 )
-COURSE_BUCKET ="Course-image"
+COURSE_BUCKET ="image"
 
 
 
