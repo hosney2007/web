@@ -1355,6 +1355,7 @@ hr{
     flex-wrap: wrap;
 }
 .social-title{
+    padding-left: 40px;
     color: var(--secondary-color);
 }
 .soical-icons{
@@ -1911,6 +1912,14 @@ body{
     .contact-form{
         width: 100%;
 
+    }
+    .social-container{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .soical-icons{
+        padding-right: 0px;
     }
     /*==================*/
     .booking-hero{
