@@ -16,6 +16,15 @@ from werkzeug.utils import secure_filename
 import os
 from utils.decorators import admin_required
 import uuid
+from supabase import create_client
+supabase = create_client(
+    os.getenv("SUPABASE_URL"),
+    os.getenv("SUPABASE_KEY")
+)
+COURSE_BUCKET ="course-image"
+
+
+
 
 admin = Blueprint("admin" ,__name__)
 # ===================admindashboard==========////
@@ -114,12 +123,17 @@ def admin_dashboard():
 def add_course():
     if request.method == "POST":
         image = request.files["image"]
-        filename = secure_filename(image.filename)
-        image.save(os.path.join(
-                current_app.config["UPLOAD_FOLDER"],
-                filename
-            ))
-        
+        if image and image.filename:
+           filename = secure_filename(image.filename)
+           file_path = f"courses/{filename}"
+           supabase.storage.from_(COURSE_BUCKET).upload(
+           file_path,
+           image.read(),
+           {"content-type": image.content_type}
+            )
+           image_url = supabase.storage.from_(COURSE_BUCKET).get_public_url(file_path)
+        else:
+          image_url = None        
         title = request.form["title"]
         description = request.form["description"]
         course_type = request.form["course_type"]    
@@ -127,7 +141,7 @@ def add_course():
             title = title,
             description= description,
             course_type=course_type,
-            image=filename
+            image=image_url
         )  
         db.session.add(course)
         db.session.commit()

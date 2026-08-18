@@ -1358,6 +1358,7 @@ hr{
     color: var(--secondary-color);
 }
 .soical-icons{
+    padding-right: 40px;
     display: flex;
     gap: 20px;
 }
