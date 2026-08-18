@@ -289,22 +289,17 @@ def add_success_story():
 
         image = request.files.get("image")
 
-        if not image:
-            flash("Please upload a student image.", "danger")
-            return redirect(url_for("admin.add_success_story"))
-
-        filename = secure_filename(image.filename)
-
-        extension = filename.rsplit(".", 1)[1].lower()
-
-        new_filename = f"{uuid.uuid4()}.{extension}"
-
-        image.save(
-            os.path.join(
-                current_app.config["UPLOAD_FOLDER"],
-                new_filename
+        if image and image.filename:
+           filename = secure_filename(image.filename)
+           file_path = f"courses/{filename}"
+           supabase.storage.from_(COURSE_BUCKET).upload(
+           file_path,
+           image.read(),
+           {"content-type": image.content_type}
             )
-        )
+           image_url = supabase.storage.from_(COURSE_BUCKET).get_public_url(file_path)
+        else:
+          image_url = None        
 
         story = SuccessStory(
 
@@ -318,7 +313,7 @@ def add_success_story():
 
             review=review,
 
-            image=new_filename
+            image=image_url
 
         )
 
