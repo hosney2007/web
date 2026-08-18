@@ -8,6 +8,13 @@ from models.purchase import Purchase
 from werkzeug.utils import secure_filename
 import os
 from utils.decorators import admin_required,save_image
+from supabase import create_client
+
+supabase = create_client(
+    os.getenv("SUPABASE_URL"),
+    os.getenv("SUPABASE_KEY")
+)
+COURSE_BUCKET ="image"
 
 recorded = Blueprint("recorded",__name__)
 
@@ -39,11 +46,17 @@ def add_course():
 
     if request.method == "POST":
         thumbnail = request.files["thumbnail"]
-        filename = secure_filename(thumbnail.filename)
-        thumbnail.save(os.path.join(
-                current_app.config["UPLOAD_FOLDER"],
-                filename
-            ))
+        if thumbnail and thumbnail.filename:
+           filename = secure_filename(thumbnail.filename)
+           file_path = f"courses/{filename}"
+           supabase.storage.from_(COURSE_BUCKET).upload(
+           file_path,
+           thumbnail.read(),
+           {"content-type": thumbnail.content_type}
+            )
+           image_url = supabase.storage.from_(COURSE_BUCKET).get_public_url(file_path)
+        else:
+          image_url = None  
 
         title = request.form.get("title")
         description = request.form.get("description")
@@ -52,7 +65,7 @@ def add_course():
             title = title,
             description= description,
             price=price,
-            thumbnail=filename
+            thumbnail=image_url
         )  
         db.session.add(new_recorded)
         db.session.commit()
@@ -222,17 +235,18 @@ def payment(id):
    
             db.session.add(purchase)
 
-
-            filename = secure_filename(image.filename)
-
-            image.save(
-                os.path.join(
-                    current_app.config["UPLOAD_FOLDER"],
-                    filename
+            if image and image.filename:
+               filename = secure_filename(image.filename)
+               file_path = f"courses/{filename}"
+               supabase.storage.from_(COURSE_BUCKET).upload(
+               file_path,
+               image.read(),
+               {"content-type": image.content_type}
                 )
-            )
-
-            purchase.payment_image = filename
+               image_url = supabase.storage.from_(COURSE_BUCKET).get_public_url(file_path)
+            else:
+              image_url = None  
+            purchase.payment_image = image_url
             purchase.status = "waiting"
 
             db.session.commit()

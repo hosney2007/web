@@ -17,7 +17,7 @@
              <div class="recorded-card">
                 <div class="recorded-img" c>
                     {%if recorded.thumbnail%}
-                      <img src="{{ url_for('static', filename='uploads/'+ recorded.thumbnail) }}" alt="{{recorded.title}}">
+                      <img src="{{ recorded.thumbnail }}" alt="{{recorded.title}}">
                     {%endif%}
                 </div>
                 <div class="recorded-content">

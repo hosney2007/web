@@ -29,7 +29,7 @@
                           <td>{{order.status}}</td>
                           <td>
                             {%if order.payment_image%}
-                            <button class="btn-nav" onclick="openImage('{{ url_for('static', filename='uploads/'+ order.payment_image) }}')">View image</button>
+                            <button class="btn-nav" onclick="openImage('{{ order.payment_image }}')">View image</button>
                              {%else%}
                              no image
                              {%endif%}
