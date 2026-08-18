@@ -94,9 +94,9 @@ def about():
 def curses():
     return render_template('courses.html', name = 'courses')    
 
-@app.route("/free session")
+@app.route("/free")
 def free_session():
-    return render_template('free-session.html', name = 'courses')   
+    return render_template('free-session.html', name = 'free')   
 
 
 @app.route("/booking", methods=["POST", "GET"])
