@@ -31,13 +31,9 @@
         </ul>
 
         {%if current_user.is_authenticated %}
-
-            {% if current_user.role == "school_student" %}
-                <a href="{{ url_for('school.dashboard') }}" class="btn-nav">My School</a>
-            {% else %}
-                <a href="/dashboard" class="btn-nav">My Account</a>
-            {% endif %}
-
+        
+            <a href="/dashboard" class="btn-nav">My Account</a>
+        
         {%else%}
         
             <a href="{{url_for('auth.login')}}" class="btn-nav">Login/Register</a>
@@ -114,17 +110,11 @@
 
     {% if current_user.is_authenticated %}
 
-   {% if current_user.role == "school_student" %}
-   <a href="{{ url_for('school.dashboard') }}" class="mobile-item {% if request.path.startswith('/school') %}active{% endif %}">
-    <i class="fa-solid fa-graduation-cap"></i>
-    <span>School</span>
-   </a>
-   {% else %}
    <a href="/dashboard" class="mobile-item {% if request.path == '/dashboard' %}active{% endif %}">
     <i class="fa-solid fa-user"></i>
     <span>Account</span>
    </a>
-   {% endif %}
+    </a>
 
     {% else %}
 

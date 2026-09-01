@@ -16,17 +16,6 @@ def admin_required(f):
             abort(403)
         return f(*args, **kwargs)
     return decorated_function
-
-
-def school_student_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            abort(401)
-        if current_user.role != "school_student":
-            abort(403)
-        return f(*args, **kwargs)
-    return decorated_function
         
 
 
@@ -69,29 +58,6 @@ def save_image(file, folder):
         filename
     )
 
-    file.save(save_path)
-
-    return f"{folder}/{filename}"
-
-
-ALLOWED_SHEET_EXTENSIONS = {"pdf", "doc", "docx", "ppt", "pptx", "png", "jpg", "jpeg"}
-
-def save_sheet_file(file, folder="school_sheets"):
-
-    if not file or file.filename == "":
-        return None
-
-    extension = file.filename.rsplit(".", 1)[1].lower()
-
-    if extension not in ALLOWED_SHEET_EXTENSIONS:
-        raise ValueError("Invalid file extension.")
-
-    filename = f"{uuid.uuid4()}.{extension}"
-
-    folder_path = os.path.join(current_app.config["UPLOAD_FOLDER"], folder)
-    os.makedirs(folder_path, exist_ok=True)
-
-    save_path = os.path.join(folder_path, filename)
     file.save(save_path)
 
     return f"{folder}/{filename}"

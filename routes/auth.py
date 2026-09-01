@@ -13,7 +13,6 @@ from extinsion import mail,limiter
 
 from extinsion import db
 from models.user import User
-from models.grade import Grade
 
 auth = Blueprint("auth" ,__name__)
 
@@ -124,60 +123,27 @@ Abdelfatah Academy
 
 
 #=========REGISTER======///
-import re
-
-EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-
 @auth.route("/register", methods=["GET", "POST"])
 @limiter.limit("3 per minute")
 def register():
     if request.method == "POST":
-        name = request.form["name"].strip()
-        email = request.form["email"].strip().lower()
+        name = request.form["name"]
+        email = request.form["email"]
         password = request.form["password"]
-        confirm_password = request.form.get("confirm_password", "")
-        grade_code = request.form.get("grade_code", "").strip()
-
-        if len(name) < 3:
-            flash("Name must be at least 3 characters.", "danger")
-            return redirect(url_for("auth.register"))
-
-        if not EMAIL_REGEX.match(email):
-            flash("Please enter a valid email address.", "danger")
-            return redirect(url_for("auth.register"))
-
-        if password != confirm_password:
-            flash("Passwords do not match.", "danger")
-            return redirect(url_for("auth.register"))
-
-        if len(password) < 8:
-            flash("Password must be at least 8 characters.", "danger")
-            return redirect(url_for("auth.register"))
 
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             flash("Email already registered","danger")
             return redirect(url_for("auth.register"))
-
-        # الطالب لا يختار الـ Role أو الـ Grade بنفسه، الكود بس اللي بيحددهم
-        role = "student"
-        grade_id = None
-        if grade_code:
-            grade = Grade.query.filter_by(code=grade_code).first()
-            if not grade:
-                flash("Invalid grade code.", "danger")
-                return redirect(url_for("auth.register"))
-            role = "school_student"
-            grade_id = grade.id
-
         hashed_password = generate_password_hash(password)
         user = User(
             name=name,
             email=email,
-            password=hashed_password,
-            role=role,
-            grade_id=grade_id
+            password=hashed_password
         )
+        if len(password) < 8:
+            flash("Password must be at least 8 characters.", "danger")
+            return redirect(url_for("auth.register"))
         db.session.add(user)
         db.session.commit()
         send_verification_email(user)
@@ -268,13 +234,12 @@ def login():
                 flash("Please verify your email first.","warning")
                 return redirect(url_for("auth.login"))
             login_user(user)
-            flash("welcome back!","success")
             if user.role == "admin":
+                flash("welcome back!","success")
                 return redirect(url_for("admin.admin_dashboard"))
-            if user.role == "school_student":
-                return redirect(url_for("school.dashboard"))
+            flash("welcome back!","success")
             return redirect(url_for("auth.dashboard"))
-        flash("Invalid email or password","danger")
+        flash("Invaild email or password","danger")
         return redirect(url_for("auth.login"))
     return render_template("login.html", name="Login", show_resend=True)
 
@@ -349,8 +314,6 @@ def reset_password(token):
 def dashboard():
     if current_user.role == "admin":
         return redirect(url_for("admin.admin_dashboard"))
-    if current_user.role == "school_student":
-        return redirect(url_for("school.dashboard"))
 
     # بيانات الطالب
     user = current_user

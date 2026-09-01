@@ -9,5 +9,4 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(250), nullable=False)
     role = db.Column( db.String(20), default="student")
     is_verified= db.Column(db.Boolean, default=False)
-    grade_id = db.Column(db.Integer, db.ForeignKey("grade.id"), nullable=True)
     purchase = db.relationship("Purchase", backref="user", lazy=True)

@@ -19,12 +19,10 @@
               <h3>{{branch.name}}</h3>
            </div>
            <div class="course-actions">
-            <form method="post" action="{{ url_for('admin.delete_branch', branch_id=branch.id)}}" style="display:inline;" onsubmit="return confirm('Delete this branch?');">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="action-btn delete-btn">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            </form>
+            </a>
+            <a href="{{ url_for('admin.delete_branch', branch_id=branch.id)}}" class="action-btn delete-btn">
+                <i class="fa-solid fa-trash"></i>
+            </a>
            </div>
        </div>
      {%endfor%}
