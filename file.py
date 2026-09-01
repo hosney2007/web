@@ -87,7 +87,7 @@ with app.app_context():
     inspector = inspect(db.engine)
     existing_columns = [c["name"] for c in inspector.get_columns("user")]
     if "grade_id" not in existing_columns:
-        db.session.execute(text("ALTER TABLE 'user' ADD COLUMN grade_id INTEGER REFERENCES grade(id)"))
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN grade_id INTEGER REFERENCES grade(id)'))
         db.session.commit()
 
 
