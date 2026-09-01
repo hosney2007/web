@@ -1,5 +1,5 @@
 #imoprts=============================///
-from flask import Blueprint, render_template, request, redirect, url_for,current_app,flash
+from flask import Blueprint, render_template, request, redirect, url_for,flash
 from flask_login import  current_user, login_required
 from extinsion import db
 from models.course import Course
@@ -23,6 +23,21 @@ supabase = create_client(
     os.getenv("SUPABASE_KEY")
 )
 COURSE_BUCKET ="image"
+
+
+def upload_course_image(image, folder="courses"):
+    """Uploads an image to Supabase storage and returns its public URL, or None."""
+    if not image or not image.filename:
+        return None
+    filename = secure_filename(image.filename)
+    unique_name = f"{uuid.uuid4()}_{filename}"
+    file_path = f"{folder}/{unique_name}"
+    supabase.storage.from_(COURSE_BUCKET).upload(
+        file_path,
+        image.read(),
+        {"content-type": image.content_type}
+    )
+    return supabase.storage.from_(COURSE_BUCKET).get_public_url(file_path)
 
 
 
@@ -123,18 +138,8 @@ def admin_dashboard():
 @admin_required
 def add_course():
     if request.method == "POST":
-        image = request.files["image"]
-        if image and image.filename:
-           filename = secure_filename(image.filename)
-           file_path = f"courses/{filename}"
-           supabase.storage.from_(COURSE_BUCKET).upload(
-           file_path,
-           image.read(),
-           {"content-type": image.content_type}
-            )
-           image_url = supabase.storage.from_(COURSE_BUCKET).get_public_url(file_path)
-        else:
-          image_url = None        
+        image = request.files.get("image")
+        image_url = upload_course_image(image)
         title = request.form["title"]
         description = request.form["description"]
         course_type = request.form["course_type"]    
@@ -168,7 +173,7 @@ def edit_course( course_id ):
 
 
 #=================delete courses=========//////
-@admin.route("/admin/delete-course/<int:course_id>", methods=["GET", "POST"])
+@admin.route("/admin/delete-course/<int:course_id>", methods=["POST"])
 @login_required
 @admin_required
 def delete_course( course_id ):
@@ -244,7 +249,7 @@ def add_branch():
         return redirect(url_for("admin.branch"))
     return render_template("admin/add-branch.html")  
 
-@admin.route("/admin/delete-branch/<int:branch_id>", methods=["GET", "POST"])
+@admin.route("/admin/delete-branch/<int:branch_id>", methods=["POST"])
 @login_required
 @admin_required
 def delete_branch( branch_id ):
@@ -289,17 +294,7 @@ def add_success_story():
 
         image = request.files.get("image")
 
-        if image and image.filename:
-           filename = secure_filename(image.filename)
-           file_path = f"courses/{filename}"
-           supabase.storage.from_(COURSE_BUCKET).upload(
-           file_path,
-           image.read(),
-           {"content-type": image.content_type}
-            )
-           image_url = supabase.storage.from_(COURSE_BUCKET).get_public_url(file_path)
-        else:
-          image_url = None        
+        image_url = upload_course_image(image, folder="success_stories")
 
         story = SuccessStory(
 
@@ -348,19 +343,7 @@ def edit_success_story(story_id):
         image = request.files.get("image")
 
         if image and image.filename:
-
-            filename = secure_filename(image.filename)
-            extension = filename.rsplit(".", 1)[1].lower()
-            new_filename = f"{uuid.uuid4()}.{extension}"
-
-            image.save(
-                os.path.join(
-                    current_app.config["UPLOAD_FOLDER"],
-                    new_filename
-                )
-            )
-
-            story.image = new_filename
+            story.image = upload_course_image(image, folder="success_stories")
 
         db.session.commit()
 
