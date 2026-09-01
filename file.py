@@ -14,6 +14,15 @@ from models.message import Message
 from models.success_story import SuccessStory
 from models.branch import Branch
 from routes.admin import admin
+from routes.school import school
+from routes.admin_school import school_admin
+from models.grade import Grade
+from models.school_course import SchoolCourse
+from models.school_lesson import SchoolLesson
+from models.school_sheet import SchoolSheet
+from models.assignment import Assignment
+from models.question import Question
+from models.submission import Submission
 from extinsion import db, login_manager, mail,csrf,limiter
 import click
 from werkzeug.security import generate_password_hash
@@ -31,6 +40,8 @@ app.register_blueprint(booking)
 app.register_blueprint(schedule)
 app.register_blueprint(recorded)
 app.register_blueprint(message)
+app.register_blueprint(school)
+app.register_blueprint(school_admin)
 
 #admin accuont===========================================///
 
@@ -56,7 +67,6 @@ def create_admin(name,email,password):
 
 
 #app configrtion==//
-app.config["SECRET_KEY"] = "YOUR SECRET KEY"
 app.config.from_object(Config)
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 db.init_app(app)
@@ -72,6 +82,13 @@ def load_user(user_id):
     
 with app.app_context():
     db.create_all()
+    # migration خفيفة: نضيف عمود grade_id لجدول الـ user لو مش موجود (لقاعدة بيانات كانت شغالة قبل التحديث)
+    from sqlalchemy import inspect, text
+    inspector = inspect(db.engine)
+    existing_columns = [c["name"] for c in inspector.get_columns("user")]
+    if "grade_id" not in existing_columns:
+        db.session.execute(text("ALTER TABLE user ADD COLUMN grade_id INTEGER REFERENCES grade(id)"))
+        db.session.commit()
 
 
 #main pages routes===================///
@@ -100,6 +117,7 @@ def free_session():
 
 
 @app.route("/booking", methods=["POST", "GET"])
+@limiter.limit("5 per minute", methods=["POST"])
 def booking():
     if request.method == "POST":
          phone = request.form["student_number"]
@@ -135,6 +153,7 @@ def booking():
 
 
 @app.route("/contact", methods=["POST", "GET"])
+@limiter.limit("5 per minute", methods=["POST"])
 def contact():
     if request.method == "POST":
          message=Message(
@@ -148,6 +167,19 @@ def contact():
          flash("your message has been confirmed")
          return redirect(url_for("contact"))  
     return render_template('contact.html', name = 'contact')    
+
+#error handlers===================///
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template("403.html", name="Forbidden"), 403
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html", name="Not Found"), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template("500.html", name="Server Error"), 500
 
 #app run==============///
 if __name__ == '__main__':

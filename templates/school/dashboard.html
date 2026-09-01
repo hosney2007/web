@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="dashboard-container">
+
+    <section class="dashboard-header">
+        <div class="welcome">
+            <h1>Welcome, <span>{{ current_user.name }}</span></h1>
+            <p>Grade: {{ current_user.grade.name if current_user.grade else "-" }}</p>
+        </div>
+        <div class="student-avatar">
+            <img src="{{ url_for('static', filename='image/defult.png') }}" alt="Student">
+        </div>
+    </section>
+
+    <section class="statistic">
+
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fa-solid fa-book"></i></div>
+            <h2>{{ total_courses }}</h2>
+            <p>Courses</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fa-solid fa-file-pen"></i></div>
+            <h2>{{ total_assignments }}</h2>
+            <p>Assignments</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon pending"><i class="fa-solid fa-hourglass-half"></i></div>
+            <h2>{{ pending_assignments|length }}</h2>
+            <p>Pending</p>
+        </div>
+
+    </section>
+
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2><i class="fa-solid fa-book"></i> My Courses</h2>
+            <a href="{{ url_for('school.courses') }}" class="btn">View All</a>
+        </div>
+
+        {% if courses %}
+        <div class="course-grid">
+            {% for course in courses %}
+            <div class="course-card">
+                <div class="course-card-header">
+                    <i class="fa-solid fa-book"></i>
+                    <h3>{{ course.name }}</h3>
+                </div>
+                <p>{{ course.description }}</p>
+                <a href="{{ url_for('school.course', id=course.id) }}" class="btn">Open Course</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h3>No Courses Yet</h3>
+            <p>Your grade has no courses added yet.</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2><i class="fa-solid fa-file-pen"></i> Pending Assignments</h2>
+            <a href="{{ url_for('school.assignments') }}" class="btn">View All</a>
+        </div>
+
+        {% if pending_assignments %}
+        <div class="course-grid">
+            {% for assignment in pending_assignments %}
+            <div class="course-card">
+                <div class="course-card-header">
+                    <i class="fa-solid fa-file-pen"></i>
+                    <h3>{{ assignment.title }}</h3>
+                </div>
+                <p>{{ assignment.course.name }}</p>
+                <a href="{{ url_for('school.assignment', id=assignment.id) }}" class="btn">Start</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h3>All Done!</h3>
+            <p>No pending assignments right now.</p>
+        </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}
